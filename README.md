@@ -1,5 +1,7 @@
 # attest-lint
 
+<img alt="EasyxLab tool" src="https://raw.githubusercontent.com/easybytehub/attest-lint/main/.github/badge-tool.svg">
+
 A "no-downgrade" check for the Python supply chain. attest-lint reads your lockfile and
 warns when a pinned dependency **stopped shipping [PEP 740] attestations** on PyPI, or
 when its **Trusted Publisher changed**, compared with that package's own history.
@@ -28,7 +30,7 @@ publisher as 2.34.1, and both of its files verify.)
 Since 2024 PyPI can serve, for every uploaded file, a signed statement of which
 repository and workflow published it. That is only useful if someone notices when it
 **goes missing**: a release published with a stolen API token instead of the project's
-CI looks exactly like an unattested release. Measured by EasyByte Lab on 2026-10-02:
+CI looks exactly like an unattested release. Measured by EasyxLab on 2026-10-02:
 FastAPI published 53 attested releases (November 2024 to 0.128.0 in December 2025) and
 none since; Typer, the same. Nothing in the Python tooling flags this today. pnpm has
 [`trustPolicy: no-downgrade`][pnpm] for npm. We found nothing equivalent in pip or uv
@@ -195,7 +197,7 @@ the publisher of every file instead of one pair per release.
 
 ## Licence
 
-Apache-2.0. Made by [EasyByte Lab](https://easybyte.es), EasyByte Hub, S. Coop. Mad.
+Apache-2.0. Made by EasyxLab, the research lab of EasyByte Hub S. Coop. Mad.
 
 [PEP 740]: https://peps.python.org/pep-0740/
 [PEP 691]: https://peps.python.org/pep-0691/
@@ -203,3 +205,7 @@ Apache-2.0. Made by [EasyByte Lab](https://easybyte.es), EasyByte Hub, S. Coop. 
 [int]: https://docs.pypi.org/api/integrity/
 [pa]: https://github.com/pypi/pypi-attestations
 [pnpm]: https://pnpm.io/supply-chain-security
+
+---
+
+EasyxLab · a research lab by [EasyByte](https://easybyte.es)
