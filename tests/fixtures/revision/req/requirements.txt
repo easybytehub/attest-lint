@@ -1,0 +1,21 @@
+# top comment
+--index-url https://pypi.org/simple/
+--extra-index-url=https://download.pytorch.org/whl/cpu
+--requirement=sub.txt
+-rsub2.txt
+-c constraints.txt
+--pre
+--only-binary :all:
+torch==2.1.0+cpu
+Zope.Interface==7.2  # inline comment
+requests[socks,use-chardet-on-py3]==2.34.2 ; python_version < "3.14" \
+    --hash=sha256:0000000000000000000000000000000000000000000000000000000000000000
+pydantic===2.13.5
+six==1.17.*
+urllib3>=2,==2.8.0
+-e git+https://github.com/pytest-dev/iniconfig@v2.0.0#egg=iniconfig
+./dist/foo-1.0-py3-none-any.whl
+foo @ file:///tmp/x
+numpy==2.5.3 --config-settings=editable_mode=compat
+${MYPKG}==1.0
+-i https://private.example/simple

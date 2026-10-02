@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "attest-lint"
+description = "No-downgrade check for the Python supply chain: flags pinned dependencies that stopped shipping PEP 740 attestations on PyPI, or whose Trusted Publisher changed, against each package's own history."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "EasyByte Hub, S. Coop. Mad." }]
+keywords = ["pep-740", "attestations", "supply-chain", "pypi", "sigstore", "trusted-publishing", "lockfile", "linter"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Security",
+  "Topic :: Software Development :: Quality Assurance",
+  "Typing :: Typed",
+]
+dynamic = ["version"]
+
+# **Una sola dependencia obligatoria, y es a propósito.** `packaging` es la implementación
+# de referencia de PyPA para nombres, versiones, requisitos y nombres de fichero de
+# wheel/sdist: reescribir esas reglas a mano sería la forma más rápida de comparar mal
+# dos versiones. Todo lo demás —TOML, HTTP, caché— es biblioteca estándar.
+#
+# La verificación criptográfica (`--verify`) es opcional y usa la librería oficial
+# `pypi-attestations` (Sigstore): inventarse esa criptografía en una herramienta de
+# seguridad sería absurdo, y obligar a instalar Sigstore a quien sólo quiere el aviso
+# de regresión también.
+dependencies = ["packaging>=23.2"]
+
+[project.optional-dependencies]
+verify = ["pypi-attestations>=0.0.28,<0.1"]
+dev = [
+  "mypy>=1.13",
+  "pytest>=8.3",
+  "ruff>=0.8",
+  "pypi-attestations>=0.0.28,<0.1",
+  "PyYAML>=6.0",
+  "types-PyYAML>=6.0",
+]
+
+[project.scripts]
+attest-lint = "attest_lint.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/easybytehub/attest-lint"
+Source = "https://github.com/easybytehub/attest-lint"
+Issues = "https://github.com/easybytehub/attest-lint/issues"
+
+[tool.hatch.version]
+path = "src/attest_lint/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/attest_lint"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "S", "UP", "RUF"]
+per-file-ignores = { "tests/*" = ["S101", "S603"], "scripts/*" = ["S603", "S607"] }
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]

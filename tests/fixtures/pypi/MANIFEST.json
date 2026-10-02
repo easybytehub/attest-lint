@@ -1,0 +1,127 @@
+{
+ "https://pypi.org/integrity/certifi/2026.6.17/certifi-2026.6.17.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/certifi/2026.6.17/certifi-2026.6.17.tar.gz.json.gz"
+ },
+ "https://pypi.org/integrity/certifi/2026.7.22/certifi-2026.7.22.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/certifi/2026.7.22/certifi-2026.7.22.tar.gz.json.gz"
+ },
+ "https://pypi.org/integrity/charset-normalizer/3.5.1/charset_normalizer-3.5.1.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/charset-normalizer/3.5.1/charset_normalizer-3.5.1.tar.gz.json.gz"
+ },
+ "https://pypi.org/integrity/charset-normalizer/3.5.2/charset_normalizer-3.5.2.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/charset-normalizer/3.5.2/charset_normalizer-3.5.2.tar.gz.json.gz"
+ },
+ "https://pypi.org/integrity/idna/3.19/idna-3.19.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/idna/3.19/idna-3.19.tar.gz.json.gz"
+ },
+ "https://pypi.org/integrity/idna/3.20/idna-3.20.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/idna/3.20/idna-3.20.tar.gz.json.gz"
+ },
+ "https://pypi.org/integrity/requests/2.34.1/requests-2.34.1.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/requests/2.34.1/requests-2.34.1.tar.gz.json.gz"
+ },
+ "https://pypi.org/integrity/requests/2.34.2/requests-2.34.2-py3-none-any.whl/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/requests/2.34.2/requests-2.34.2-py3-none-any.whl.json.gz"
+ },
+ "https://pypi.org/integrity/requests/2.34.2/requests-2.34.2.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/requests/2.34.2/requests-2.34.2.tar.gz.json.gz"
+ },
+ "https://pypi.org/integrity/urllib3/2.7.0/urllib3-2.7.0.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/urllib3/2.7.0/urllib3-2.7.0.tar.gz.json.gz"
+ },
+ "https://pypi.org/integrity/urllib3/2.8.0/urllib3-2.8.0.tar.gz/provenance": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "integrity/urllib3/2.8.0/urllib3-2.8.0.tar.gz.json.gz"
+ },
+ "https://pypi.org/simple/annotated-doc/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/annotated-doc.json.gz"
+ },
+ "https://pypi.org/simple/certifi/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/certifi.json.gz"
+ },
+ "https://pypi.org/simple/charset-normalizer/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/charset-normalizer.json.gz"
+ },
+ "https://pypi.org/simple/colorama/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/colorama.json.gz"
+ },
+ "https://pypi.org/simple/fastapi/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/fastapi.json.gz"
+ },
+ "https://pypi.org/simple/idna/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/idna.json.gz"
+ },
+ "https://pypi.org/simple/markdown-it-py/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/markdown-it-py.json.gz"
+ },
+ "https://pypi.org/simple/mdurl/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/mdurl.json.gz"
+ },
+ "https://pypi.org/simple/pygments/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/pygments.json.gz"
+ },
+ "https://pypi.org/simple/requests/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/requests.json.gz"
+ },
+ "https://pypi.org/simple/rich/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/rich.json.gz"
+ },
+ "https://pypi.org/simple/shellingham/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/shellingham.json.gz"
+ },
+ "https://pypi.org/simple/typer/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/typer.json.gz"
+ },
+ "https://pypi.org/simple/urllib3/": {
+  "status": 200,
+  "recorded": "2026-10-02",
+  "file": "simple/urllib3.json.gz"
+ }
+}

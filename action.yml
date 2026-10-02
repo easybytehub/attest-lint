@@ -1,0 +1,138 @@
+# Composite action, no Docker or JavaScript. It installs attest-lint from the action's own
+# code (`github.action_path`), not from PyPI: the version you pin in `uses:` is exactly
+# the code that runs, and it works whether or not the package is on PyPI.
+#
+# Note: setup-python changes the Python on the job's PATH for the steps that follow.
+# Set `python-version` to what the rest of your job expects.
+name: attest-lint
+description: >-
+  Flags pinned PyPI dependencies that stopped shipping PEP 740 attestations, or whose
+  Trusted Publisher changed, compared with each package's own history. Reads
+  pylock.toml, uv.lock, poetry.lock and requirements.txt.
+author: EasyByte Hub, S. Coop. Mad.
+
+branding:
+  icon: shield
+  color: blue
+
+inputs:
+  lockfiles:
+    description: >-
+      Lockfiles to check, one per line (spaces in names are fine). Empty: the first of
+      pylock.toml, uv.lock, poetry.lock, requirements.txt in the working directory.
+    required: false
+    default: ""
+  format:
+    description: "Output format: text, json or sarif."
+    required: false
+    default: sarif
+  strict:
+    description: If 'true', AT-002 (publisher changed) is an error and warnings fail the step.
+    required: false
+    default: "false"
+  fail:
+    description: >-
+      If 'false', the step does not fail on findings. Useful when the SARIF is uploaded
+      afterwards: a step that aborts hides the report that explains why.
+    required: false
+    default: "true"
+  window:
+    description: AT-001 looks at this many releases before the pinned one; 0 means all.
+    required: false
+    default: "0"
+  allowlist:
+    description: File with one NAME or NAME==VERSION per line to stop reporting.
+    required: false
+    default: ""
+  verify:
+    description: If 'true', verify attestations cryptographically (installs pypi-attestations).
+    required: false
+    default: "false"
+  output:
+    description: File the report is written to when the format is not text.
+    required: false
+    default: attest-lint.sarif
+  python-version:
+    description: >-
+      Python version set up for the tool. setup-python also makes it the job's Python
+      for the steps that follow.
+    required: false
+    default: "3.12"
+
+outputs:
+  errors:
+    description: Number of error findings (json format only).
+    value: ${{ steps.check.outputs.errors }}
+  warnings:
+    description: Number of warning findings (json format only).
+    value: ${{ steps.check.outputs.warnings }}
+  report-file:
+    description: Path of the report, when the format is not text.
+    value: ${{ steps.check.outputs.report-file }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install attest-lint from the action's code
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        VERIFY: ${{ inputs.verify }}
+      run: |
+        target="$ACTION_PATH"
+        [ "$VERIFY" = "true" ] && target="$ACTION_PATH[verify]"
+        python -m pip install --disable-pip-version-check "$target"
+
+    - name: Check attestations
+      id: check
+      # `bash {0}` instead of `bash`: GitHub's `shell: bash` adds `set -e`, which would
+      # abort on attest-lint's first finding, before the report is written and before
+      # deciding whether the step should fail.
+      shell: bash {0}
+      env:
+        LOCKFILES: ${{ inputs.lockfiles }}
+        FORMAT: ${{ inputs.format }}
+        STRICT: ${{ inputs.strict }}
+        FAIL: ${{ inputs.fail }}
+        WINDOW: ${{ inputs.window }}
+        ALLOWLIST: ${{ inputs.allowlist }}
+        VERIFY: ${{ inputs.verify }}
+        OUTPUT: ${{ inputs.output }}
+      run: |
+        options=(--format "$FORMAT" --window "$WINDOW" --no-color)
+        [ "$STRICT" = "true" ] && options+=(--strict)
+        [ "$VERIFY" = "true" ] && options+=(--verify)
+        [ -n "$ALLOWLIST" ] && options+=(--allowlist "$ALLOWLIST")
+        # One path per line. Splitting only on newlines keeps names with spaces whole.
+        IFS=$'\n'
+        target=($LOCKFILES)
+        unset IFS
+
+        if [ "$FORMAT" = "text" ]; then
+          attest-lint "${target[@]}" "${options[@]}"
+          code=$?
+        else
+          attest-lint "${target[@]}" "${options[@]}" > "$OUTPUT"
+          code=$?
+          echo "report-file=$OUTPUT" >> "$GITHUB_OUTPUT"
+        fi
+
+        # With exit 2 the tool may not have written a report. upload-sarif fails with an
+        # opaque message on an empty or invalid file, so leave a minimal valid SARIF.
+        if [ "$FORMAT" = "sarif" ] && ! python -c "import json,sys;json.load(open(sys.argv[1]))" "$OUTPUT" 2>/dev/null; then
+          echo '{"$schema":"https://json.schemastore.org/sarif-2.1.0.json","version":"2.1.0","runs":[{"tool":{"driver":{"name":"attest-lint","rules":[]}},"results":[]}]}' > "$OUTPUT"
+        fi
+
+        if [ "$FORMAT" = "json" ] && [ -s "$OUTPUT" ]; then
+          python -c "import json,sys;r=json.load(open(sys.argv[1]))['summary'];print(f\"errors={r['errors']}\nwarnings={r['warnings']}\")" "$OUTPUT" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [ "$code" -eq 1 ] && [ "$FAIL" != "true" ]; then
+          echo "::notice::attest-lint found issues; the step does not fail because fail=false."
+          exit 0
+        fi
+        exit "$code"

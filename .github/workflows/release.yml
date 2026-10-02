@@ -1,0 +1,147 @@
+# What a tag produces: a wheel with verifiable provenance, a GitHub Release and, when
+# enabled, the same wheel on PyPI.
+#
+# **Why provenance matters especially here.** This tool exists to flag packages that stop
+# shipping verifiable provenance. Publishing it without provenance of its own would be
+# the exact regression it reports: `gh attestation verify` checks which commit, workflow
+# and runner produced the wheel, and PyPI receives PEP 740 attestations via Trusted
+# Publishing.
+#
+# **No key of ours is involved.** GitHub issues a short-lived OIDC token for this run,
+# the attestation is signed with it and recorded publicly. Nothing to store, rotate or
+# leak. Same for PyPI: Trusted Publishing, no API token in any secret.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+# Read at the top, write only in the job that needs it: a write permission declared
+# here would be granted to every job, including any added later that only reads.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.12"
+
+      # **The tag and `__version__` must match.** A wheel that says 0.1.0 under a v0.2.0
+      # tag is unusable for anyone pinning either, and the failure shows up months later
+      # in a report nobody can reproduce. Checked before building anything.
+      - name: Tag and __version__ must match
+        run: |
+          tagged="${GITHUB_REF_NAME#v}"
+          declared=$(python -c 'import sys; sys.path.insert(0, "src"); import attest_lint; print(attest_lint.__version__)')
+          if [ "$tagged" != "$declared" ]; then
+            echo "::error::the tag is v$tagged and __version__ is $declared."
+            exit 1
+          fi
+
+      # **Nothing is published that the tests have not passed on this exact commit.** CI
+      # runs on pushes to main, but a tag can point at any commit.
+      - name: Test before building
+        run: |
+          python -m pip install --disable-pip-version-check -e ".[dev]"
+          python -m pytest
+          python -m ruff check .
+          python -m mypy
+
+      - name: Build
+        run: |
+          python -m pip install --disable-pip-version-check build==1.2.2.post1
+          python -m build
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write      # create the release and attach the wheel and its provenance
+      id-token: write      # OIDC: attestation signature and PyPI Trusted Publishing
+      attestations: write  # record the attestation
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: dist
+          path: dist/
+
+      # The attestation is made on the built artifact and before publishing: provenance
+      # that arrives after publication is provenance someone could download without.
+      - name: Attest provenance
+        id: provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8  # v4.2.2
+        with:
+          subject-path: dist/*
+
+      # **The bundle is attached to the release, and it is not redundant.** GitHub stores
+      # attestations out of band, where a tool looking at release assets cannot see them.
+      # It is copied OUTSIDE `dist/` on purpose: that directory goes to PyPI as is, and
+      # PyPI rejects any file that is not an installable artifact.
+      - name: Publish the GitHub Release with the wheel and its provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROVENANCE: ${{ steps.provenance.outputs.bundle-path }}
+        run: |
+          mkdir -p release
+          cp dist/* release/
+          cp "$PROVENANCE" release/provenance.intoto.jsonl
+          notes="Verify the wheel's provenance:
+
+          \`\`\`bash
+          gh attestation verify --owner ${{ github.repository_owner }} attest_lint-*.whl
+          \`\`\`"
+          prerelease=""
+          case "${GITHUB_REF_NAME#v}" in
+            *a*|*b*|*rc*) prerelease="--prerelease" ;;
+          esac
+          gh release create "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" --notes "$notes" $prerelease
+
+      # **Why this step is conditional.** Trusted Publishing requires a *pending
+      # publisher* registered on pypi.org first, and only a person signed in there can do
+      # that. Until it exists this step would fail and turn red a release whose wheel and
+      # provenance are perfectly valid.
+      #
+      # The alternative — `continue-on-error` — hides the failure: the release would go
+      # green having published nothing, which is worse. A repository variable makes the
+      # state explicit: while it is not set, the summary says it was not published and why.
+      #
+      # To enable it: pypi.org → Publishing → Add a pending publisher, with owner
+      # `easybytehub`, repository `attest-lint`, workflow `release.yml` and environment
+      # `release`. Then set the repository variable `PYPI_TRUSTED_PUBLISHER` to `listo`.
+      #
+      # The GitHub Action does not depend on this: action.yml installs from its own code.
+      - name: Publish to PyPI
+        if: vars.PYPI_TRUSTED_PUBLISHER == 'listo'
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
+        with:
+          packages-dir: dist
+          skip-existing: true
+
+      - name: Note that PyPI is pending
+        if: vars.PYPI_TRUSTED_PUBLISHER != 'listo'
+        run: |
+          echo "::notice::Release published on GitHub with verifiable provenance, but NOT on PyPI."
+          {
+            echo "### PyPI: not published"
+            echo
+            echo 'The repository variable `PYPI_TRUSTED_PUBLISHER` is not `listo`.'
+            echo 'Register the pending publisher on pypi.org (owner `easybytehub`,'
+            echo 'repo `attest-lint`, workflow `release.yml`, environment `release`)'
+            echo 'and set the variable. The wheel of this release is valid and can be'
+            echo 'installed from the release itself.'
+          } >> "$GITHUB_STEP_SUMMARY"

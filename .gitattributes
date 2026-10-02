@@ -1,0 +1,2 @@
+# fixtures are read byte-for-byte (lockfiles, PyPI responses): keep LF on every OS
+tests/fixtures/** -text
