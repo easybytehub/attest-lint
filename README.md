@@ -142,12 +142,12 @@ permissions:
   contents: read
   security-events: write
 steps:
-  - uses: actions/checkout@v7
-  - uses: easybytehub/attest-lint@v0.1.0   # pin by SHA in production
+  - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+  - uses: easybytehub/attest-lint@1715eef2eba95e81f6bebae192792b34e8b38b1b  # v0.1.0
     with:
       lockfiles: uv.lock
       fail: "false"          # let the SARIF upload run, then decide
-  - uses: github/codeql-action/upload-sarif@v4
+  - uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2  # v4.38.2
     if: always()             # upload the report even if a previous step failed
     with:
       sarif_file: attest-lint.sarif
