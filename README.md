@@ -31,9 +31,9 @@ publisher as 2.34.1, and both of its files verify.)
 Since 2024 PyPI can serve, for every uploaded file, a signed statement of which
 repository and workflow published it. That is only useful if someone notices when it
 **goes missing**: a release published with a stolen API token instead of the project's
-CI looks exactly like an unattested release. Measured by EasyxLab on 2026-10-02:
-FastAPI published 53 attested releases (November 2024 to 0.128.0 in December 2025) and
-none since; Typer, the same. Nothing in the Python tooling flags this today. pnpm has
+CI looks exactly like an unattested release. In the example above, FastAPI published 53
+attested releases, the last of them 0.128.0 in December 2025, and none since. Nothing in
+the Python tooling flags this today. pnpm has
 [`trustPolicy: no-downgrade`][pnpm] for npm. We found nothing equivalent in pip or uv
 (as of 2026-10-02): uv can *upload* attestations, but nothing checks them on install.
 
