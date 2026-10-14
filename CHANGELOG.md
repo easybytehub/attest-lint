@@ -2,7 +2,16 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: SemVer.
 
-## [0.1.0] — unreleased
+## [0.1.1] — unreleased
+
+First release on PyPI. No functional changes.
+
+### Changed
+- README: absolute links, so they also work on PyPI; the footer links to EasyxLab.
+- CI still runs the GitHub Action on the example requirements file, but no longer
+  uploads its SARIF to code scanning: findings on test files would bury real alerts.
+
+## [0.1.0] — 2026-10-02
 
 First release.
 
