@@ -61,7 +61,7 @@ never attested anything (AT-003), so there is nothing to compare against.
 | SRC-003 | info | a requirements file uses another index (`-i`, `--extra-index-url`, `-f`, `--no-index`) |
 | NET-001 | undetermined, exit 2 | PyPI data could not be retrieved |
 
-Every finding cites its source; [`SPEC.md`](SPEC.md) quotes each one literally.
+Every finding cites its source; [`SPEC.md`](https://github.com/easybytehub/attest-lint/blob/main/SPEC.md) quotes each one literally.
 
 How the history is read:
 
@@ -208,4 +208,4 @@ Apache-2.0. Made by EasyxLab, the research lab of EasyByte Hub S. Coop. Mad.
 
 ---
 
-EasyxLab · a research lab by [EasyByte](https://easybyte.es)
+[EasyxLab](https://easybyte.es/lab/) · a research lab by [EasyByte](https://easybyte.es)
