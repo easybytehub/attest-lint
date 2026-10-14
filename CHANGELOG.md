@@ -10,6 +10,7 @@ First release on PyPI. No functional changes.
 - README: absolute links, so they also work on PyPI; the footer links to EasyxLab.
 - CI still runs the GitHub Action on the example requirements file, but no longer
   uploads its SARIF to code scanning: findings on test files would bury real alerts.
+  It checks instead that the SARIF is version 2.1.0 and has findings.
 
 ## [0.1.0] — 2026-10-02
 

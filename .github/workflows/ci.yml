@@ -45,5 +45,5 @@ jobs:
           lockfiles: tests/fixtures/lockfiles/requirements.txt
           verify: "true"
           fail: "false"
-      - name: The action wrote a SARIF
-        run: python -c 'import json, sys; json.load(open(sys.argv[1]))["runs"][0]["results"]' attest-lint.sarif
+      - name: The action wrote a SARIF with findings
+        run: python -c 'import json, sys; d = json.load(open(sys.argv[1])); assert d["version"] == "2.1.0" and d["runs"][0]["results"], "no findings"' attest-lint.sarif
