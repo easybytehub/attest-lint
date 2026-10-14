@@ -20,6 +20,7 @@ ERROR        AT-001 [requirements.txt:1] fastapi 0.142.2: Attestation regression
              citation: PEP 740, “JSON-based Simple API” (the per-file `provenance` key); PyPI Integrity API, GET /integrity/<project>/<version>/<filename>/provenance
 
 1 error · 0 warnings · 0 info · 0 undetermined
+A regression or a publisher change is a signal to review, not proof of compromise; zero findings does not mean your dependencies are safe.
 ```
 
 (Real output, 2026-10-02. `requests 2.34.2` is attested by `psf/requests`, the same
