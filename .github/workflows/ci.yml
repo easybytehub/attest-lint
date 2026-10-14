@@ -30,15 +30,12 @@ jobs:
 
   action:
     # Runs the action (installed from this checkout) against real PyPI on the example
-    # requirements file — fastapi 0.142.2 is a real attestation regression — and uploads
-    # the SARIF so it shows in the Security tab. A pull request from a fork gets a
-    # read-only token and cannot upload SARIF, so the job only runs on pushes and on pull
-    # requests from this repository.
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    # requirements file — fastapi 0.142.2 is a real attestation regression — and checks
+    # that it writes a SARIF. The SARIF is not uploaded: that finding is expected, and
+    # findings on test fixtures would bury real alerts in the Security tab.
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -48,8 +45,5 @@ jobs:
           lockfiles: tests/fixtures/lockfiles/requirements.txt
           verify: "true"
           fail: "false"
-      - uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2  # v4.38.2
-        if: always()
-        with:
-          sarif_file: attest-lint.sarif
-          category: attest-lint
+      - name: The action wrote a SARIF
+        run: python -c 'import json, sys; json.load(open(sys.argv[1]))["runs"][0]["results"]' attest-lint.sarif
